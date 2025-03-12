@@ -1,34 +1,13 @@
-const codeReader = new ZXing.BrowserMultiFormatReader(); // Proper reader
+const codeReader = new ZXing.BrowserMultiFormatReader(); // Use default camera directly
 const videoElement = document.getElementById('video');
 const resultElement = document.getElementById('result');
 const startButton = document.getElementById('start-btn');
 const stopButton = document.getElementById('stop-btn');
 
-let selectedDeviceId = null;
 let scanning = false;
 
-async function getCameraDevices() {
-  try {
-    const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-    console.log('Available Devices:', devices);
-
-    // Pick first available camera (you can implement a selector if needed)
-    if (devices.length > 0) {
-      selectedDeviceId = devices[0].deviceId;
-    } else {
-      resultElement.textContent = 'No camera devices found.';
-    }
-  } catch (error) {
-    console.error('Error fetching devices:', error);
-    resultElement.textContent = 'Error fetching camera devices.';
-  }
-}
-
 async function startScanner() {
-  if (!selectedDeviceId) {
-    await getCameraDevices(); // Fetch device if not selected yet
-    if (!selectedDeviceId) return; // Exit if still no device found
-  }
+  if (scanning) return; // Prevent double start
 
   try {
     resultElement.textContent = 'Scanning...';
@@ -37,12 +16,12 @@ async function startScanner() {
     stopButton.style.display = 'inline-block';
     scanning = true;
 
-    // Start scanning
-    codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+    // **Directly start scanning from default camera (no need to enumerate)**
+    await codeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
       if (result) {
         console.log('Detected:', result.text);
         resultElement.textContent = 'Detected: ' + result.text;
-        stopScanner(); // Stop scanner after successful read (optional)
+        stopScanner(); // Optional: Stop after first detection
       }
       if (err && !(err instanceof ZXing.NotFoundException)) {
         console.error('Scan error:', err);
@@ -50,14 +29,14 @@ async function startScanner() {
       }
     });
   } catch (error) {
-    console.error('Camera error:', error);
+    console.error('Camera access error:', error);
     resultElement.textContent = 'Camera access error: ' + error;
   }
 }
 
 function stopScanner() {
   if (scanning) {
-    codeReader.reset(); // Properly release camera
+    codeReader.reset(); // Properly stop scanning
     videoElement.style.display = 'none';
     startButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
@@ -66,16 +45,13 @@ function stopScanner() {
   }
 }
 
-// Attach button events
+// Button event listeners
 startButton.addEventListener('click', startScanner);
 stopButton.addEventListener('click', stopScanner);
 
-// Register service worker for PWA
+// Register service worker (optional but recommended for PWA)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
     .then(() => console.log('Service Worker Registered'))
     .catch((err) => console.error('Service Worker Error:', err));
 }
-
-// Preload devices on load (optional, so ready to scan quickly)
-window.addEventListener('load', getCameraDevices);
