@@ -8,16 +8,17 @@
   <meta name="theme-color" content="#317EFB"/>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-    video { width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; }
+    video { width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; display: none; }
     #result { margin-top: 20px; font-size: 1.2em; color: green; word-wrap: break-word; }
+    button { padding: 12px 24px; font-size: 1em; margin-top: 20px; border: none; border-radius: 8px; background-color: #317EFB; color: white; cursor: pointer; }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
   </style>
 </head>
 <body>
-  <h1>Auto QR & Barcode Scanner</h1>
+  <h1>QR & Barcode Scanner PWA</h1>
   <video id="video" autoplay muted playsinline></video>
-  <div id="result">Scanning...</div>
+  <div id="result">Press the button to start scanning.</div>
+  <button id="start-btn">Turn on Camera</button>
+  <button id="stop-btn" style="display: none;">Stop Scanning</button>
 
-  <script src="https://unpkg.com/@zxing/library@latest"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+  <script src="http
