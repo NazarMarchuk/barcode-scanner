@@ -3,21 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Scanner PWA</title>
+  <title>QR & Barcode Scanner PWA</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#317EFB"/>
   <style>
     body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 20px; }
-    video { width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 8px; }
-    #result { margin-top: 20px; font-size: 1.2em; color: green; }
-    button { margin-top: 15px; padding: 10px 20px; }
+    video { width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 8px; margin-top: 10px; }
+    #result { margin-top: 20px; font-size: 1.2em; color: green; word-wrap: break-word; }
   </style>
 </head>
 <body>
-  <h1>Barcode Scanner PWA</h1>
-  <video id="video" autoplay></video>
-  <div id="result">Scan a barcode...</div>
-  <button onclick="startScanner()">Start Scanner</button>
+  <h1>Auto QR & Barcode Scanner</h1>
+  <video id="video" autoplay muted playsinline></video>
+  <div id="result">Scanning...</div>
 
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <script src="app.js"></script>
