@@ -1,28 +1,36 @@
-let selectedDeviceId;
-const codeReader = new ZXing.BrowserBarcodeReader();
+const codeReader = new ZXing.BrowserMultiFormatContinuousReader();
 const resultElement = document.getElementById('result');
 const videoElement = document.getElementById('video');
 
 async function startScanner() {
   try {
-    const devices = await codeReader.getVideoInputDevices();
-    selectedDeviceId = devices[0].deviceId; // Select the first available camera
+    const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
+    const selectedDeviceId = devices.length > 1 ? devices[1].deviceId : devices[0].deviceId;
 
-    codeReader.decodeOnceFromVideoDevice(selectedDeviceId, 'video').then((result) => {
-      console.log(result);
-      resultElement.textContent = 'Barcode: ' + result.text;
-      codeReader.reset(); // Reset scanner after one scan
-    }).catch((err) => {
-      console.error(err);
-      resultElement.textContent = 'Error scanning: ' + err;
+    console.log('Using camera: ', selectedDeviceId);
+
+    codeReader.decodeFromVideoDevice(selectedDeviceId, videoElement, (result, err) => {
+      if (result) {
+        console.log('Detected:', result.text);
+        resultElement.textContent = 'Detected: ' + result.text;
+
+        // Optionally stop scanning after first detection:
+        codeReader.reset();
+      } else if (err && !(err instanceof ZXing.NotFoundException)) {
+        console.error(err);
+        resultElement.textContent = 'Scanning error: ' + err;
+      }
     });
   } catch (error) {
-    console.error(error);
-    resultElement.textContent = 'Camera access denied or no camera found';
+    console.error('Camera error:', error);
+    resultElement.textContent = 'Camera access error: ' + error;
   }
 }
 
-// Register service worker
+// Auto start scanner on page load
+window.onload = startScanner;
+
+// Register service worker for offline/PWA
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
     .then(() => console.log('Service Worker Registered'))
